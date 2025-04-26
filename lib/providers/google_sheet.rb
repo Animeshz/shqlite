@@ -30,6 +30,7 @@ module Providers
         @worksheet[1, index + 1] = header
       end
 
+      rows = sanitize_sheet_data(rows)
       rows.each_with_index do |row, row_index|
         row.each_with_index do |value, col_index|
           @worksheet[row_index + 2, col_index + 1] = value.to_s
@@ -37,6 +38,12 @@ module Providers
       end
 
       worksheet.save
+    end
+
+    def fetch_data_worksheet(worksheet_name = nil)
+      worksheet = find_or_create_worksheet(worksheet_name)
+      headers, *rows = worksheet.rows
+      [headers, rows]
     end
 
     private
@@ -65,6 +72,18 @@ module Providers
 
       @worksheet = @spreadsheet.worksheet_by_title(worksheet_name) ||
                    @spreadsheet.add_worksheet(worksheet_name)
+    end
+
+    # if it looks like a leading zero number, prefix with `'`
+    def encode_for_sheet(cell)
+      return "'#{cell}" if cell.to_s.match?(/\A0\d+/)
+      cell
+    end
+
+    def sanitize_sheet_data(rows)
+      rows.map do |row|
+        row.map { |cell| encode_for_sheet(cell) }
+      end
     end
   end
 end
