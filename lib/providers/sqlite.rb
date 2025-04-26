@@ -24,7 +24,7 @@ module Providers
       schema = @db.get_first_value("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", [from_table])
       raise "Table #{from_table} does not exist!" unless schema
 
-      cloned_schema = schema.sub(/CREATE TABLE #{Regexp.quote(from_table)}/i, "CREATE TABLE #{to_table}")
+      cloned_schema = schema.sub(/CREATE TABLE\s+["'`]?(#{Regexp.quote(from_table)})["'`]?/i, "CREATE TABLE #{to_table}")
       @db.execute(cloned_schema)
     end
 
