@@ -10,7 +10,7 @@ module Services
 
     def perform
       sheet_provider = Providers::GoogleSheet.new(@credentials_path, @spreadsheet_name)
-      if @gmail != nil then
+      if @gmail != nil
         sheet_provider.give_access(@email)
         puts "✅ Access added!"
       end

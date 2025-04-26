@@ -1,3 +1,6 @@
+require 'csv'
+require 'tempfile'
+
 require_relative '../providers/sqlite'
 require_relative '../providers/google_sheet'
 
@@ -22,7 +25,45 @@ module Services
       headers, rows = google_sheet.fetch_data_worksheet(@worksheet_name)
       sqlite.bulk_insert(@temp_table_name, headers, rows)
 
-      puts "✅ Imported #{rows.size} rows to #{@temp_table_name}!"
+      if show_diff_and_confirm_changes!(sqlite)
+        sqlite.drop_table(@table_name)
+        sqlite.rename_table(@temp_table_name, @table_name)
+        puts "✅ Changes accepted!"
+        puts "✅ Imported #{rows.size} rows to #{@table_name}!"
+      else
+        puts "❌ Changes discarded."
+
+        print "Drop temporary import table #{@temp_table_name}? (y/n): "
+        answer = $stdin.gets.chomp
+        if answer.downcase.start_with?('y')
+          sqlite.drop_table(@temp_table_name)
+          puts "✅ #{@temp_table_name} dropped!"
+        end
+      end
+    end
+
+    private
+
+    def show_diff_and_confirm_changes!(sqlite)
+      c1, r1 = sqlite.fetch_table_data(@table_name)
+      c2, r2 = sqlite.fetch_table_data(@temp_table_name)
+
+      org_file = Tempfile.new('org.csv')
+      tmp_file = Tempfile.new('tmp.csv')
+
+      begin
+        CSV.open(org_file.path, "w") { |csv| r1.each { |row| csv << row } }
+        CSV.open(tmp_file.path, "w") { |csv| r2.each { |row| csv << row } }
+
+        system("diff -u #{org_file.path} #{tmp_file.path} | #{ENV['PAGER'] || 'less'}")
+
+        print "Accept changes? (y/n): "
+        answer = $stdin.gets.chomp
+        answer.downcase.start_with?('y')
+      ensure
+        org_file.close!
+        tmp_file.close!
+      end
     end
   end
 end

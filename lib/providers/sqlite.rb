@@ -16,6 +16,10 @@ module Providers
       @db.execute("DROP TABLE IF EXISTS #{table_name}")
     end
 
+    def rename_table(from_table, to_table)
+      @db.execute("ALTER TABLE #{from_table} RENAME TO #{to_table};")
+    end
+
     def clone_table_schema(from_table, to_table)
       schema = @db.get_first_value("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", [from_table])
       raise "Table #{from_table} does not exist!" unless schema

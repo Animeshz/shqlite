@@ -22,7 +22,7 @@ module Providers
     def write_data_worksheet(headers, rows, worksheet_name = nil, clear = true)
       worksheet = find_or_create_worksheet(worksheet_name)
 
-      if clear then
+      if clear
         clear_worksheet(worksheet)
       end
 
