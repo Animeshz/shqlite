@@ -84,6 +84,13 @@ Options:
 Import a Google Sheet into SQLite DB with review and replace mechanism
 #+end_example
 
+**Note:** You can set your custom pager with env variable instead of =less= (default), to view in a better diff parser:
+
+#+begin_src bash
+export SHQLITE_PAGER=delta
+export DELTA_PAGER='less -R'
+#+end_src
+
 ** Examples
 
 Get the credentials json from Google Console first, refer [[https://github.com/gimite/google-drive-ruby/blob/master/doc/authorization.md#on-behalf-of-no-existing-users-service-account][instructions here]].

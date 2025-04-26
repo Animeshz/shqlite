@@ -55,7 +55,7 @@ module Services
         CSV.open(org_file.path, "w") { |csv| r1.each { |row| csv << row } }
         CSV.open(tmp_file.path, "w") { |csv| r2.each { |row| csv << row } }
 
-        system("diff -u #{org_file.path} #{tmp_file.path} | #{ENV['PAGER'] || 'less'}")
+        system("diff -u #{org_file.path} #{tmp_file.path} | #{ENV['SHQLITE_PAGER'] || 'less'}")
 
         print "Accept changes? (y/n): "
         answer = $stdin.gets.chomp
