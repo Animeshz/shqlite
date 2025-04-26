@@ -33,11 +33,19 @@ module Providers
 
       columns = headers.map { |h| "\"#{h}\"" }.join(", ")
       placeholders = rows.map { "(#{(["?"] * headers.size).join(", ")})" }.join(", ")
-      values = rows.flatten
+      values = sanitize_sqlite_data(rows).flatten
 
       sql = "INSERT INTO #{table_name} (#{columns}) VALUES #{placeholders}"
 
       @db.execute(sql, values)
+    end
+
+    private
+
+    def sanitize_sqlite_data(rows)
+      rows.map do |row|
+        row.map { |value| value.nil? || value.to_s.strip.empty? ? nil : value }
+      end
     end
   end
 end
