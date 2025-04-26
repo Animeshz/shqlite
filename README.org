@@ -1,0 +1,103 @@
+* shqlite
+
+Use Google Sheets to edit Sqlite tables.
+
+** Installation
+
+Soon will be published to ruby gems, but for now:
+
+#+begin_src bash
+gem build
+gem install shqlite-1.0.0.gem
+#+end_src
+
+** Usage
+
+#+begin_src bash :results output :exports both
+shqlite
+#+end_src
+
+#+RESULTS:
+: Commands:
+:   shqlite access -c, --credentials-path=CREDENTIALS_PATH -s, --spreadsheet-na...
+:   shqlite export -c, --credentials-path=CREDENTIALS_PATH -d, --db-path=DB_PAT...
+:   shqlite help [COMMAND]                                                     ...
+:   shqlite import -c, --credentials-path=CREDENTIALS_PATH -d, --db-path=DB_PAT...
+: 
+
+#+begin_src bash :results output :exports both
+shqlite help export
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Usage:
+  shqlite export -c, --credentials-path=CREDENTIALS_PATH -d, --db-path=DB_PATH -s, --spreadsheet-name=SPREADSHEET_NAME -t, --table-name=TABLE_NAME
+
+Options:
+  -d, --db-path=DB_PATH                    # Path to SQLite database
+  -c, --credentials-path=CREDENTIALS_PATH  # Path to Google Service Account credentials JSON
+  -s, --spreadsheet-name=SPREADSHEET_NAME  # Name of Spreadsheet
+  -w, [--worksheet-name=WORKSHEET_NAME]    # Name of Worksheet
+  -t, --table-name=TABLE_NAME              # Table name in SQLite DB
+
+Export an SQLite table to a Google Sheet
+#+end_example
+
+#+begin_src bash :results output :exports both
+shqlite help access
+#+end_src
+
+#+RESULTS:
+: Usage:
+:   shqlite access -c, --credentials-path=CREDENTIALS_PATH -s, --spreadsheet-name=SPREADSHEET_NAME
+: 
+: Options:
+:   -c, --credentials-path=CREDENTIALS_PATH  # Path to Google Service Account credentials JSON
+:   -s, --spreadsheet-name=SPREADSHEET_NAME  # Name of Spreadsheet
+:   -e, [--email=EMAIL]                      # Email of the account to be given access
+: 
+: Get url to the spreadsheet with given name, optionally add email to the access list.
+
+For now, import just writes to a =#{TABLE_NAME}_import_tmp= table name instead of replacing current table.
+
+#+begin_src bash :results output :exports both
+shqlite help import
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Usage:
+  shqlite import -c, --credentials-path=CREDENTIALS_PATH -d, --db-path=DB_PATH -s, --spreadsheet-name=SPREADSHEET_NAME -t, --table-name=TABLE_NAME
+
+Options:
+  -d, --db-path=DB_PATH                    # Path to SQLite database
+  -c, --credentials-path=CREDENTIALS_PATH  # Path to Google Service Account credentials JSON
+  -s, --spreadsheet-name=SPREADSHEET_NAME  # Name of Spreadsheet
+  -w, [--worksheet-name=WORKSHEET_NAME]    # Name of Worksheet
+  -t, --table-name=TABLE_NAME              # Table name in SQLite DB
+
+Import a Google Sheet into SQLite DB with review and replace mechanism
+#+end_example
+
+** Examples
+
+Get the credentials json from Google Console first, refer [[https://github.com/gimite/google-drive-ruby/blob/master/doc/authorization.md#on-behalf-of-no-existing-users-service-account][instructions here]].
+
+#+begin_src bash
+# export to google sheet
+shqlite export -c ./path/to/your-google-sv-key.json -d /path/to/sqlite.db -s MySheet -t my_table
+
+# add email and see sheet url
+shqlite access -c ./path/to/your-google-sv-key.json -s MySheet -e myemail@example.com
+
+# just see sheet url
+shqlite access -c ./path/to/your-google-sv-key.json -s MySheet
+
+# import into sqlite db back
+shqlite import -c ./path/to/your-google-sv-key.json -d /path/to/sqlite.db -s MySheet -t my_table
+
+sqlite3 /path/to/sqlite.db "SELECT * FROM my_table" > out1
+sqlite3 /path/to/sqlite.db "SELECT * FROM my_table_import_tmp" > out2
+diff -u out1 out2  # should be nil
+#+end_src
