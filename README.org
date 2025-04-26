@@ -25,6 +25,8 @@ shqlite
 :   shqlite import -c, --credentials-path=CREDENTIALS_PATH -d, --db-path=DB_PAT...
 : 
 
+*** Export Subcommand
+
 #+begin_src bash :results output :exports both
 shqlite help export
 #+end_src
@@ -44,6 +46,8 @@ Options:
 Export an SQLite table to a Google Sheet
 #+end_example
 
+*** Access Subcommand
+
 #+begin_src bash :results output :exports both
 shqlite help access
 #+end_src
@@ -58,6 +62,8 @@ shqlite help access
 :   -e, [--email=EMAIL]                      # Email of the account to be given access
 : 
 : Get url to the spreadsheet with given name, optionally add email to the access list.
+
+*** Import Subcommand
 
 For now, import just writes to a =#{TABLE_NAME}_import_tmp= table name instead of replacing current table.
 
